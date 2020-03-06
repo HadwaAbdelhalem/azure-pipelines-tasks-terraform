@@ -1,7 +1,7 @@
 import { TaskScenario } from '../scenarios';
 import { TerraformInputs } from '../scenarios-terraform';
 import '../scenarios-terraform';
-import { env } from './show-with-input-file.env';
+import { env } from './show-with-no-input-file.env';
 
 export let showWithNoArgs = new TaskScenario<TerraformInputs>()
     .inputTerraformCommand(env.terraformCommand)

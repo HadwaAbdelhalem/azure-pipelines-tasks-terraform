@@ -183,9 +183,9 @@
             "defaultValue": "#{ai-instrumentation-key}#"
         },
         {
-            "name": "inputPlanFile",
+            "name": "inputTargetPlanOrStateFilePath",
             "type": "string",
-            "label": "Input plan File",
+            "label": "Target Plan or State File Path",
             "required": false,
             "helpMarkDown": "path to a terraform plan or state file to show its content, If no path is specified, the current state will be shown.",
             "groupName": "showVariables"

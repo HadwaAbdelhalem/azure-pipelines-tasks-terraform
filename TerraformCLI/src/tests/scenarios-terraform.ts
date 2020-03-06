@@ -11,7 +11,7 @@ import { TestResult2 } from 'azure-devops-node-api/interfaces/TestInterfaces';
 declare module "./scenarios"{
     interface TaskScenario<TInputs>{
         inputTerraformCommand(this: TaskScenario<TerraformInputs>, command: string, options?: string, workingDirectory?: string): TaskScenario<TerraformInputs>;
-        inputTerrformShowCommand(this: TaskScenario<TerraformInputs>, inputPlanFile: string):TaskScenario<TerraformInputs>;
+        inputTerrformShowCommand(this: TaskScenario<TerraformInputs>, inputTargetPlanOrStateFilePath: string):TaskScenario<TerraformInputs>;
         inputTerraformSecureVarsFile(this: TaskScenario<TerraformInputs>, secureVarsFileId: string, secureVarsFileName: string) : TaskScenario<TerraformInputs>;
         inputAzureRmBackend(this: TaskScenario<TerraformInputs>, serviceName: string, storageAccountName: string, containerName: string, key: string, resourceGroupName: string): TaskScenario<TerraformInputs>;
         inputAzureRmEnsureBackend(this: TaskScenario<TerraformInputs>, resourceGroupLocation?: string, storageAccountSku?: string): TaskScenario<TerraformInputs>;
@@ -44,7 +44,7 @@ export interface TerraformInputs {
     environmentServiceName?: string;
     aiInstrumentationKey?: string;
     environmentVariables: Map<string, string>;
-    inputPlanFile: string;
+    inputTargetPlanOrStateFilePath: string;
 }
 
 export class TerraformAzureRmEnsureBackend extends TaskInputsAre<TerraformInputs>{
@@ -112,21 +112,21 @@ TaskScenario.prototype.inputTerraformSecureVarsFile = function(this: TaskScenari
 }
 
 export class ShowVarsIs extends TaskInputDecorator<TerraformInputs> {
-    private inputPlanFile: string;
+    private inputTargetPlanOrStateFilePath: string;
 
-    constructor (inputs: TaskInputBuilder<TerraformInputs>, inputPlanFile: string){
+    constructor (inputs: TaskInputBuilder<TerraformInputs>, inputTargetPlanOrStateFilePath: string){
         super(inputs);
-        this.inputPlanFile = inputPlanFile;
+        this.inputTargetPlanOrStateFilePath = inputTargetPlanOrStateFilePath;
     }
 
     build (): TerraformInputs {
         const inputs = this.inputs.build();
-        inputs.inputPlanFile = this.inputPlanFile;
+        inputs.inputTargetPlanOrStateFilePath = this.inputTargetPlanOrStateFilePath;
         return inputs;
     }
 }
-TaskScenario.prototype.inputTerrformShowCommand = function (this: TaskScenario<TerraformInputs>, inputPlanFile: string): TaskScenario<TerraformInputs>{
-    this.inputFactory((builder) => new ShowVarsIs(builder, inputPlanFile));
+TaskScenario.prototype.inputTerrformShowCommand = function (this: TaskScenario<TerraformInputs>, inputTargetPlanOrStateFilePath: string): TaskScenario<TerraformInputs>{
+    this.inputFactory((builder) => new ShowVarsIs(builder, inputTargetPlanOrStateFilePath));
     return this;
 }
 export class TerraformAzureRmBackend extends TaskInputsAre<TerraformInputs> {    

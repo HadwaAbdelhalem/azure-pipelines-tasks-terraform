@@ -114,7 +114,7 @@ export class TerraformWithShow extends TerraformCommandDecorator{
     private readonly inputFile: string | undefined;
     constructor(builder: TerraformCommandBuilder, inputFile?: string |undefined) {
         super(builder);
-        this.inputFile = inputFile
+        this.inputFile =  inputFile || "";
     } 
     async onRun(context: TerraformCommandContext): Promise<void>{
         context.terraform.arg('-json');

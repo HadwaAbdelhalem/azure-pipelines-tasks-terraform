@@ -7,15 +7,15 @@ import * as file from "fs";
 import { ResultDetails } from "azure-devops-node-api/interfaces/TestInterfaces";
 
 export class TerraformShow extends TerraformCommand{
-   readonly inputPlanFile: string |undefined;
+   readonly inputTargetPlanOrStateFilePath: string |undefined;
 
     constructor(
         name: string, 
         workingDirectory: string,
-        inputPlanFile: string,
+        inputTargetPlanOrStateFilePath: string,
         options?: string){
         super(name, workingDirectory, options, true);
-        this.inputPlanFile = inputPlanFile;
+        this.inputTargetPlanOrStateFilePath = inputTargetPlanOrStateFilePath;
     }
 }
 
@@ -33,10 +33,10 @@ export class TerraformShowHandler implements IHandleCommandString{
         let show = new TerraformShow(
             command,
             tasks.getInput("workingDirectory"),   
-            tasks.getInput("inputPlanFile"),
+            tasks.getInput("inputTargetPlanOrStateFilePath"),
             tasks.getInput("commandOptions")
         );
-
+        
         let loggedProps = {
             "commandOptionsDefined": show.options !== undefined && show.options !== '' && show.options !== null,
         }   
@@ -46,15 +46,15 @@ export class TerraformShowHandler implements IHandleCommandString{
     
     private async onExecute(command: TerraformShow): Promise<number> {
         let result = await new TerraformRunner(command)
-            .withShowOptions(command.inputPlanFile)
+            .withShowOptions(command.inputTargetPlanOrStateFilePath)
             .execWithOutput();
               
         //check for destroy
-        if (command.inputPlanFile)
+        if (command.inputTargetPlanOrStateFilePath)
         {
-            if(command.inputPlanFile.includes(".tfstate"))
+            if(command.inputTargetPlanOrStateFilePath.includes(".tfstate"))
             {     
-                tasks.warning("Cannot check for destroy in .tfstate file");
+                tasks.warning("Cannot check for destroy in .tfstate file");       
             }  
             else 
             {
