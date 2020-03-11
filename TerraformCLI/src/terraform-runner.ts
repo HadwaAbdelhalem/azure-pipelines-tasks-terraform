@@ -185,38 +185,31 @@ export class TerraformRunner{
         return result.code;
     }
     async execWithOutput(successfulExitCodes?: number[] | undefined): Promise<IExecSyncResult>{
+
         await this.builder.run(<TerraformCommandContext>{
             terraform: this.terraform,
             command: this.command
         });
-        
+
         if(!successfulExitCodes || successfulExitCodes.length == 0){
             successfulExitCodes = [0];
         }
 
+
         // append the user provided options last.
         if (this.command.options) {
             this.terraform.line(this.command.options);
-        }        
-        
-        let code = await this.terraform.exec(<IExecOptions>{
-            cwd: this.command.workingDirectory,
-            ignoreReturnCode: true
-        });        
-        
-        //CZ: stdout content will be needed once a PR to add terraform show merges
-        //let stdout = this._processBuffers(this.stdOutBuffers);        
-        let stderr = this._processBuffers(this.stdErrBuffers);
-
-        if(!successfulExitCodes.includes(code)){
-            throw new TerraformAggregateError(this.command.name, stderr, code);
-        }
- 
-
+        }     
+         
         let result = this.terraform.execSync(<IExecSyncOptions>{
             cwd: this.command.workingDirectory,
             silent: this.command.isSilent
         });
+
+        //CZ: stdout content will be needed once a PR to add terraform show merges
+        //let stdout = this._processBuffers(this.stdOutBuffers);        
+        let stderr = this._processBuffers(this.stdErrBuffers);
+     
         if(!successfulExitCodes.includes(result.code)){
             throw new TerraformAggregateError(this.command.name, result.stderr, result.code);
         }
