@@ -4,9 +4,6 @@ import { TerraformCommand, ITaskAgent } from "./terraform";
 import { TerraformAggregateError } from "./terraform-aggregate-error";
 import * as dotenv from "dotenv"
 import * as path from "path"
-import { promises } from "fs";
-import { InputFilterOperator } from "azure-devops-node-api/interfaces/common/FormInputInterfaces";
-import { SingleReleaseExpands } from "azure-devops-node-api/interfaces/ReleaseInterfaces";
 import os from 'os';
 
 export interface TerraformCommandContext {
@@ -115,7 +112,7 @@ export class TerraformWithShow extends TerraformCommandDecorator{
     private readonly inputFile: string | undefined;
     constructor(builder: TerraformCommandBuilder, inputFile?: string |undefined) {
         super(builder);
-        this.inputFile =  inputFile || "";
+        this.inputFile =  inputFile;
     } 
     async onRun(context: TerraformCommandContext): Promise<void>{
         context.terraform.arg('-json');
@@ -201,20 +198,24 @@ export class TerraformRunner{
             this.terraform.line(this.command.options);
         }     
          
-        let result = this.terraform.execSync(<IExecSyncOptions>{
-            cwd: this.command.workingDirectory,
+        const code = await this.terraform.exec(<IExecOptions>{	
+            cwd: this.command.workingDirectory,	
+            ignoreReturnCode: true,
             silent: this.command.isSilent
-        });
+        });        	
 
-        //CZ: stdout content will be needed once a PR to add terraform show merges
-        //let stdout = this._processBuffers(this.stdOutBuffers);        
-        let stderr = this._processBuffers(this.stdErrBuffers);
-     
-        if(!successfulExitCodes.includes(result.code)){
-            throw new TerraformAggregateError(this.command.name, result.stderr, result.code);
+        const stdout = this._processBuffers(this.stdOutBuffers);        	
+        const stderr = this._processBuffers(this.stdErrBuffers);	
+
+        if(!successfulExitCodes.includes(code)){	
+            throw new TerraformAggregateError(this.command.name, stderr, code);	
         }
         
-        return result;
+        return <IExecSyncResult>{
+            code,
+            stdout,
+            stderr
+        };
     }
 }
 
